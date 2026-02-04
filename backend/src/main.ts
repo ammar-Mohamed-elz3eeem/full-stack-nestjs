@@ -8,11 +8,15 @@ import * as path from 'path';
 dotenv.config();
 
 async function bootstrap() {
+  const cors = {
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+  };
+
+  console.log('CORS configuration:', cors);
+
   const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: 'http://localhost:5173',
-      credentials: true,
-    },
+    cors,
   });
 
   // Swagger/OpenAPI configuration
