@@ -1,0 +1,75 @@
+services:
+  frontend-dev:
+    container_name: eg-frontend-dev
+    build:
+      context: ./frontend
+      dockerfile: Development.Dockerfile
+    volumes:
+      - ./frontend:/app
+    environment:
+      - VITE_BACKEND_URL=http://localhost:5000
+    ports:
+      - 5173:5173
+    depends_on:
+      - backend-dev
+
+  backend-dev:
+    container_name: eg-backend-dev
+    build:
+      context: ./backend
+      dockerfile: Development.Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - FRONTEND_URL=http://eg-frontend-dev:5173
+      - DOCS_URL=http://eg-docs-dev:3000
+      - PORT=5000
+      - DB_CONNECTION_STRING=mongodb://admin:admin@eg-db-dev:27017/myapp?authSource=admin
+      - PASSWORD_SALT=acfe4d0752b66cedfb5ab6d23e47621f
+      - JWT_SECRET=your_jwt_secret_key
+      - JWT_EXPIRES_IN=1h
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  docs-dev:
+    container_name: eg-docs-dev
+    build:
+      context: ./docs
+      dockerfile: Dockerfile
+    volumes:
+      - ./docs:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-dev
+
+  db-dev:
+    image: mongo:latest
+    container_name: eg-db-dev
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db-data:/data/db
+    restart: always
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongo",
+          "--eval",
+          "db.runCommand('ping').ok",
+          "localhost:27017/myapp",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin

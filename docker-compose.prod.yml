@@ -1,65 +1,52 @@
 services:
-  # frontend-prod:
-  #   container_name: eg-frontend-prod
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - backend
-
-  frontend-dev:
-    container_name: eg-frontend-dev
+  frontend-prod:
+    container_name: eg-frontend-prod
     build:
       context: ./frontend
-      dockerfile: Development.Dockerfile
-    volumes:
-      - ./frontend:/app
+      dockerfile: Dockerfile
     ports:
-      - 5173:5173
+      - "80:80"
+    environment:
+      - VITE_BACKEND_URL=http://eg-backend-prod:5000
     depends_on:
-      - backend
+      - backend-prod
 
-  backend:
-    container_name: eg-backend
+  backend-prod:
+    container_name: eg-backend-prod
     build:
       context: ./backend
-      dockerfile: Development.Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     environment:
-      - FRONTEND_URL=http://frontend:80
+      - FRONTEND_URL=http://eg-frontend-prod:80
+      - DOCS_URL=http://eg-docs-prod:3000
       - PORT=5000
-      - DB_CONNECTION_STRING=mongodb://admin:admin@eg-db:27017/myapp?authSource=admin
+      - DB_CONNECTION_STRING=mongodb://admin:admin@eg-db-prod:27017/myapp?authSource=admin
       - PASSWORD_SALT=acfe4d0752b66cedfb5ab6d23e47621f
       - JWT_SECRET=your_jwt_secret_key
       - JWT_EXPIRES_IN=1h
-    volumes:
-      - ./backend:/app
     depends_on:
-      - db
+      - db-prod
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # docs:
-  #   container_name: eg-docs
-  #   build:
-  #     context: ./docs
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./docs:/app
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - backend
+  docs-prod:
+    container_name: eg-docs-prod
+    build:
+      context: ./docs
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-prod
 
-  db:
+  db-prod:
     image: mongo:latest
-    container_name: eg-db
+    container_name: eg-db-prod
     ports:
       - "27017:27017"
     volumes:
