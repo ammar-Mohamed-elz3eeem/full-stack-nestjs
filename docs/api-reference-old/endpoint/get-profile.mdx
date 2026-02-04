@@ -1,0 +1,63 @@
+---
+title: "Get Profile"
+openapi: "GET /auth/me"
+---
+
+<RequestExample>
+
+```bash cURL
+curl -X GET http://localhost:3000/auth/me \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+```javascript JavaScript
+const response = await fetch("http://localhost:3000/auth/me", {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+
+const profile = await response.json();
+console.log(profile);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'http://localhost:3000/auth/me',
+    headers={
+        'Authorization': f'Bearer {token}'
+    }
+)
+
+profile = response.json()
+print(profile)
+```
+
+</RequestExample>
+
+## Authentication Required
+
+<Warning>
+  This endpoint requires a valid JWT token in the Authorization header.
+</Warning>
+
+The token is obtained by logging in or registering a new account. Include it in all requests to this endpoint:
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+## Response
+
+Returns the full user profile for the authenticated user, including:
+
+- User ID
+- Full name
+- Email address
+- Role (user or admin)
+
+<Note>
+  The password field is not returned in the response for security reasons.
+</Note>

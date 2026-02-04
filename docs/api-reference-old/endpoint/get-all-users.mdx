@@ -1,0 +1,86 @@
+---
+title: "Get All Users"
+openapi: "GET /auth/users"
+---
+
+<RequestExample>
+
+```bash cURL
+curl -X GET http://localhost:3000/auth/users \
+  -H "Authorization: Bearer YOUR_ADMIN_JWT_TOKEN"
+```
+
+```javascript JavaScript
+const response = await fetch("http://localhost:3000/auth/users", {
+  headers: {
+    Authorization: `Bearer ${adminToken}`,
+  },
+});
+
+const users = await response.json();
+console.log(users);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'http://localhost:3000/auth/users',
+    headers={
+        'Authorization': f'Bearer {admin_token}'
+    }
+)
+
+users = response.json()
+print(users)
+```
+
+</RequestExample>
+
+## Admin Only Endpoint
+
+<Warning>
+  This endpoint requires admin privileges. Regular users will receive a 403
+  Forbidden error.
+</Warning>
+
+Only users with the `admin` role can access this endpoint. The role is stored in the JWT token payload.
+
+## Authentication Required
+
+Include a valid JWT token with admin role in the Authorization header:
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+## Response
+
+Returns an array of all users in the system. Each user object includes:
+
+- User ID
+- Full name
+- Email address
+- Role
+
+## Error Responses
+
+### 401 Unauthorized
+
+Returned when the JWT token is missing or invalid:
+
+```json
+{
+  "message": "Authorization header missing"
+}
+```
+
+### 403 Forbidden
+
+Returned when the authenticated user does not have admin privileges:
+
+```json
+{
+  "message": "Admin privileges required"
+}
+```

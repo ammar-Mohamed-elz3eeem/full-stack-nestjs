@@ -1,0 +1,48 @@
+---
+title: "Login"
+openapi: "POST /auth/login"
+---
+
+<RequestExample>
+
+```bash cURL
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.doe@example.com",
+    "password": "Password1!"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch("http://localhost:3000/auth/login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    email: "john.doe@example.com",
+    password: "Password1!",
+  }),
+});
+
+const data = await response.json();
+console.log(data.token); // JWT token for authentication
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'http://localhost:3000/auth/login',
+    json={
+        'email': 'john.doe@example.com',
+        'password': 'Password1!'
+    }
+)
+
+data = response.json()
+print(data['token'])  # JWT token for authentication
+```
+
+</RequestExample>

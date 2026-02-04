@@ -1,0 +1,71 @@
+# API Reference
+
+Welcome to the Full Stack Test API reference. This documentation is generated from our OpenAPI specification.
+
+## Base URL
+
+All API endpoints are relative to the base URL:
+
+```
+http://localhost:3000
+```
+
+## Authentication
+
+Most endpoints require authentication via JWT tokens. Include the token in the Authorization header:
+
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+See the [Authentication](/authentication) guide for more details.
+
+## Endpoints Overview
+
+### App Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Health check endpoint |
+
+### Authentication Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/auth/login` | User login | No |
+| POST | `/auth/register` | User registration | No |
+| GET | `/auth/me` | Get current user profile | Yes |
+| GET | `/auth/users` | Get all users | Yes (Admin) |
+
+## Response Format
+
+All responses are returned in JSON format. Successful responses include the requested data, while error responses include a message and optionally an array of validation errors.
+
+### Success Response
+
+```json
+{
+  "message": "Success message",
+  "data": { ... }
+}
+```
+
+### Error Response
+
+```json
+{
+  "message": "Error description",
+  "errors": ["Validation error 1", "Validation error 2"]
+}
+```
+
+## HTTP Status Codes
+
+| Code | Description |
+|------|-------------|
+| 200 | Success |
+| 201 | Created |
+| 400 | Bad Request - Invalid input or validation error |
+| 401 | Unauthorized - Missing or invalid authentication |
+| 403 | Forbidden - Insufficient permissions |
+| 500 | Internal Server Error |

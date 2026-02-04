@@ -1,0 +1,141 @@
+# Authentication
+
+The Full Stack Test API uses JSON Web Tokens (JWT) for authentication. This guide explains how authentication works and how to use it in your applications.
+
+## Overview
+
+JWT (JSON Web Token) is an open standard for securely transmitting information between parties. The API uses JWT tokens to authenticate requests to protected endpoints.
+
+## How It Works
+
+<Steps>
+  <Step title="Register or Login">
+    Create an account or login with existing credentials to receive a JWT token.
+  </Step>
+  <Step title="Store the Token">
+    Store the JWT token securely in your application (e.g., in memory, secure storage).
+  </Step>
+  <Step title="Include in Requests">
+    Include the token in the Authorization header for all requests to protected endpoints.
+  </Step>
+  <Step title="Token Expiry">
+    Tokens expire after the configured duration. Re-authenticate to get a new token.
+  </Step>
+</Steps>
+
+## Authorization Header Format
+
+All authenticated requests must include the JWT token in the Authorization header:
+
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+## Token Structure
+
+The JWT token contains encoded information about the user:
+
+```json
+{
+  "id": "507f1f77bcf86cd799439011",
+  "email": "john.doe@example.com",
+  "fullName": "John Doe",
+  "role": "user",
+  "iat": 1621525692,
+  "exp": 1621529292
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique user identifier |
+| `email` | User's email address |
+| `fullName` | User's full name |
+| `role` | User's role (`user` or `admin`) |
+| `iat` | Token issued at timestamp |
+| `exp` | Token expiration timestamp |
+
+## Protected Endpoints
+
+The following endpoints require authentication:
+
+| Endpoint | Method | Required Role |
+|----------|--------|---------------|
+| `/auth/me` | GET | Any authenticated user |
+| `/auth/users` | GET | Admin only |
+
+## Error Responses
+
+### 401 Unauthorized
+
+Returned when the token is missing, invalid, or expired:
+
+```json
+{
+  "message": "Authorization header missing"
+}
+```
+
+```json
+{
+  "message": "jwt expired"
+}
+```
+
+### 403 Forbidden
+
+Returned when the user doesn't have the required role:
+
+```json
+{
+  "message": "Admin privileges required"
+}
+```
+
+## Best Practices
+
+<Warning>
+  Never expose your JWT token in client-side code, URLs, or logs. Always use HTTPS in production.
+</Warning>
+
+1. **Store tokens securely**: Use secure storage mechanisms appropriate for your platform
+2. **Handle token expiration**: Implement token refresh logic or re-authentication flows
+3. **Use HTTPS**: Always use HTTPS in production to protect tokens in transit
+4. **Validate on the server**: Never trust client-side token validation alone
+
+## Example Implementation
+
+```javascript
+// Token storage (example using memory - use secure storage in production)
+let authToken = null;
+
+// Login and store token
+async function login(email, password) {
+  const response = await fetch('/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  
+  const data = await response.json();
+  authToken = data.token;
+  return data;
+}
+
+// Make authenticated request
+async function getProfile() {
+  const response = await fetch('/auth/me', {
+    headers: {
+      'Authorization': `Bearer ${authToken}`,
+    },
+  });
+  
+  if (response.status === 401) {
+    // Token expired or invalid - re-authenticate
+    authToken = null;
+    throw new Error('Please login again');
+  }
+  
+  return response.json();
+}
+```

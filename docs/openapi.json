@@ -1,0 +1,339 @@
+{
+  "openapi": "3.0.2",
+  "paths": {
+    "/": {
+      "get": {
+        "description": "Returns a simple hello message to verify the API is running",
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "API is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Hello World!"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Health check",
+        "tags": ["app"]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "description": "Authenticate a user with email and password",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid credentials or validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "User login",
+        "tags": ["auth"]
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "description": "Register a new user account",
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or email already in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "User registration",
+        "tags": ["auth"]
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "description": "Returns the authenticated user profile",
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get current user profile",
+        "tags": ["auth"]
+      }
+    },
+    "/auth/users": {
+      "get": {
+        "description": "Returns a list of all users (admin only)",
+        "operationId": "AuthController_getAllUsers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of users retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Admin privileges required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Get all users",
+        "tags": ["auth"]
+      }
+    }
+  },
+  "info": {
+    "title": "Full Stack Test API",
+    "description": "API documentation for the Full Stack Test authentication system",
+    "version": "1.0.2",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Authentication endpoints"
+    },
+    {
+      "name": "app",
+      "description": "Application endpoints"
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "JWT-auth": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "LoginUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address of the user",
+            "example": "john.doe@example.com",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password of the user",
+            "example": "Password1!"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the user",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Full name of the user",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user",
+            "example": "john.doe@example.com"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role of the user",
+            "example": "user",
+            "enum": ["user", "admin"]
+          }
+        },
+        "required": ["fullName", "email"]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message",
+            "example": "Welcome back, John Doe!"
+          },
+          "user": {
+            "description": "User details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserResponseDto"
+              }
+            ]
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT authentication token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUwN2YxZjc3YmNmODZjZDc5OTQzOTAxMSIsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJpYXQiOjE2MjE1MjU2OTIsImV4cCI6MTYyMTUyOTI5Mn0.abc123"
+          }
+        },
+        "required": ["message", "user", "token"]
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid password"
+          },
+          "errors": {
+            "description": "Array of validation errors",
+            "example": ["Password must contain at least one uppercase letter"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["message"]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "description": "Full name of the user",
+            "example": "John Doe",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user",
+            "example": "john.doe@example.com",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password must be 6-15 characters with uppercase, lowercase, number, and special character",
+            "example": "Password1!",
+            "minLength": 6,
+            "maxLength": 15
+          }
+        },
+        "required": ["fullName", "email", "password"]
+      }
+    }
+  }
+}

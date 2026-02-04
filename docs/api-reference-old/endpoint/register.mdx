@@ -1,0 +1,73 @@
+---
+title: "Register"
+openapi: "POST /auth/register"
+---
+
+<RequestExample>
+
+```bash cURL
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullName": "John Doe",
+    "email": "john.doe@example.com",
+    "password": "Password1!"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch("http://localhost:3000/auth/register", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    fullName: "John Doe",
+    email: "john.doe@example.com",
+    password: "Password1!",
+  }),
+});
+
+const data = await response.json();
+console.log(data.token); // JWT token for authentication
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'http://localhost:3000/auth/register',
+    json={
+        'fullName': 'John Doe',
+        'email': 'john.doe@example.com',
+        'password': 'Password1!'
+    }
+)
+
+data = response.json()
+print(data['token'])  # JWT token for authentication
+```
+
+</RequestExample>
+
+## Password Requirements
+
+The password must meet the following criteria:
+
+- **Length**: 6-15 characters
+- **Uppercase**: At least one uppercase letter (A-Z)
+- **Lowercase**: At least one lowercase letter (a-z)
+- **Number**: At least one number (0-9)
+- **Special character**: At least one special character (!@#$%^&\* etc.)
+
+### Valid Password Examples
+
+- `Password1!`
+- `MyPass123@`
+- `SecureP@ss1`
+
+### Invalid Password Examples
+
+- `password` - Missing uppercase, number, and special character
+- `PASSWORD1!` - Missing lowercase
+- `Pass1!` - Too short (minimum 6 characters)
