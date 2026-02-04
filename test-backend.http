@@ -1,0 +1,433 @@
+### Backend API Test Requests
+### Base URL: http://localhost:5000
+
+# ============================================
+# APP ENDPOINTS
+# ============================================
+
+### Health Check - GET /
+# Returns a simple hello message to verify the API is running
+GET http://localhost:5000/
+Accept: application/json
+
+###
+
+# ============================================
+# AUTH ENDPOINTS
+# ============================================
+
+### Register User - POST /auth/register
+# Register a new user account with valid credentials
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "Password1!"
+}
+
+###
+
+### Register User - Missing Full Name (should fail validation)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Password1!"
+}
+
+###
+
+### Register User - Invalid Email Format (should fail validation)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "invalid-email",
+  "password": "Password1!"
+}
+
+###
+
+### Register User - Password Missing Uppercase (should fail validation)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "test2@example.com",
+  "password": "password1!"
+}
+
+###
+
+### Register User - Password Missing Lowercase (should fail validation)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "test3@example.com",
+  "password": "PASSWORD1!"
+}
+
+###
+
+### Register User - Password Missing Number (should fail validation)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "test4@example.com",
+  "password": "Password!"
+}
+
+###
+
+### Register User - Password Missing Special Character (should fail validation)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "test5@example.com",
+  "password": "Password1"
+}
+
+###
+
+### Register User - Password Too Short (should fail validation)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "test6@example.com",
+  "password": "Pa1!"
+}
+
+###
+
+### Register User - Password Too Long (should fail validation)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "test7@example.com",
+  "password": "Password1!TooLong"
+}
+
+###
+
+### Register User - Duplicate Email (should fail - run after first successful register)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Jane Doe",
+  "email": "john.doe@example.com",
+  "password": "Password2!"
+}
+
+###
+
+### Register Second User - For Testing Multiple Users
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "password": "SecurePass1!"
+}
+
+###
+
+### Login User - POST /auth/login
+# Authenticate with valid credentials
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password1!"
+}
+
+###
+
+### Login User - Wrong Password (should fail)
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "WrongPassword1!"
+}
+
+###
+
+### Login User - Non-existent Email (should fail)
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "Password1!"
+}
+
+###
+
+### Login User - Invalid Email Format (should fail validation)
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "password": "Password1!"
+}
+
+###
+
+### Login User - Missing Password (should fail validation)
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com"
+}
+
+###
+
+### Login User - Missing Email (should fail validation)
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "password": "Password1!"
+}
+
+###
+
+### Login User - Empty Body (should fail validation)
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{}
+
+###
+
+# ============================================
+# PROTECTED ENDPOINTS (Require JWT Token)
+# ============================================
+# IMPORTANT: Replace <YOUR_JWT_TOKEN> with the token received from login/register
+
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODM2MjJkOGZlNWI2NmMzYzg5MzY2YyIsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImZ1bGxOYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE3NzAyMTgwNzYsImV4cCI6MTc3MDIyMTY3Nn0.bmqUdljehgMEDn_cdWL4XHpFhUqtDAtI765TZRbydhU
+
+### Get Current User Profile - GET /auth/me
+# Returns the authenticated user's profile
+GET http://localhost:5000/auth/me
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get Current User Profile - No Token (should fail with 401)
+GET http://localhost:5000/auth/me
+Accept: application/json
+
+###
+
+### Get Current User Profile - Invalid Token (should fail with 401)
+GET http://localhost:5000/auth/me
+Accept: application/json
+Authorization: Bearer invalid.jwt.token
+
+###
+
+### Get Current User Profile - Malformed Authorization Header (should fail)
+GET http://localhost:5000/auth/me
+Accept: application/json
+Authorization: InvalidHeader
+
+###
+
+### Get All Users - GET /auth/users
+# Returns a list of all users (may require admin privileges)
+GET http://localhost:5000/auth/users
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get All Users - No Token (should fail with 401)
+GET http://localhost:5000/auth/users
+Accept: application/json
+
+###
+
+### Get All Users - Invalid Token (should fail with 401)
+GET http://localhost:5000/auth/users
+Accept: application/json
+Authorization: Bearer invalid.jwt.token
+
+###
+
+# ============================================
+# SWAGGER/OPENAPI DOCUMENTATION
+# ============================================
+
+### Access Swagger UI Documentation
+# Open this URL in browser: http://localhost:5000/api-docs
+
+### Get OpenAPI JSON Specification
+GET http://localhost:5000/api-docs-json
+Accept: application/json
+
+###
+
+# ============================================
+# EDGE CASES & SPECIAL CHARACTERS
+# ============================================
+
+### Register User - Name with Special Characters
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "José María García-López",
+  "email": "jose.maria@example.com",
+  "password": "Password1!"
+}
+
+###
+
+### Register User - Email with Plus Sign
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Test Plus",
+  "email": "test+alias@example.com",
+  "password": "Password1!"
+}
+
+###
+
+### Register User - Very Long Name
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "This Is A Very Long Name That Might Exceed Some Database Limits Or Cause Issues",
+  "email": "longname@example.com",
+  "password": "Password1!"
+}
+
+###
+
+### Register User - Empty Strings (should fail validation)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "",
+  "email": "",
+  "password": ""
+}
+
+###
+
+### Register User - Whitespace Only Name (edge case)
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "   ",
+  "email": "whitespace@example.com",
+  "password": "Password1!"
+}
+
+###
+
+# ============================================
+# CONTENT-TYPE VARIATIONS
+# ============================================
+
+### Login with Wrong Content-Type (should fail or behave unexpectedly)
+POST http://localhost:5000/auth/login
+Content-Type: text/plain
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password1!"
+}
+
+###
+
+### Login without Content-Type Header
+POST http://localhost:5000/auth/login
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password1!"
+}
+
+###
+
+# ============================================
+# HTTP METHOD VARIATIONS
+# ============================================
+
+### Try GET on Login Endpoint (should return 404 or 405)
+GET http://localhost:5000/auth/login
+Accept: application/json
+
+###
+
+### Try POST on Health Check (should return 404 or 405)
+POST http://localhost:5000/
+Content-Type: application/json
+
+{}
+
+###
+
+### Try PUT on Register (should return 404 or 405)
+PUT http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "put@example.com",
+  "password": "Password1!"
+}
+
+###
+
+### Try DELETE on Me Endpoint (should return 404 or 405)
+DELETE http://localhost:5000/auth/me
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================
+# NON-EXISTENT ROUTES
+# ============================================
+
+### Non-existent Route
+GET http://localhost:5000/non-existent-route
+Accept: application/json
+
+###
+
+### Non-existent Auth Sub-route
+GET http://localhost:5000/auth/non-existent
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
