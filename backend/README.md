@@ -1,98 +1,278 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend Server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A robust REST API built with NestJS, featuring JWT authentication, MongoDB integration, and OpenAPI documentation.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Table of Contents
 
-## Description
+- [Features](#feat)
+- [Project Structure](#structure)
+- [Tech Stack](#stack)
+- [Prerequsites](#prerequsites)
+- [Quick start](#quick-start)
+- [Available Scripts](#scripts)
+- [API Endpoints](#endpoints)
+- [API Documentation](#api-docs)
+- [Authentication](#auth)
+- [Testing](#testing)
+- [Docker](#docker)
+- [Architecture](#architecture)
+- [Configuration](#configuration)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🚀 Features <a name="feat"></a>
 
-## Project setup
+- **Authentication System** - JWT-based auth with login, register, and profile endpoints
+- **Role-Based Access Control** - User and Admin roles with middleware protection
+- **MongoDB Integration** - Mongoose ODM for database operations
+- **OpenAPI/Swagger** - Auto-generated API documentation
+- **Input Validation** - Zod schema validation with custom middleware
+- **Error Handling** - Centralized error handling with custom error classes
+- **Testing** - Unit tests and E2E tests with Jest
 
-```bash
-$ pnpm install
+## 📁 Project Structure <a name="structure"></a>
+
+```
+backend/
+├── src/
+│   ├── auth/                    # Authentication module
+│   │   ├── dto/                 # Data Transfer Objects with Swagger decorators
+│   │   ├── interfaces/          # TypeScript interfaces
+│   │   ├── auth.controller.ts   # Auth endpoints
+│   │   ├── auth.service.ts      # Business logic
+│   │   ├── auth.repository.ts   # Database operations
+│   │   ├── auth.module.ts       # Module definition
+│   │   └── auth.schema.ts       # Zod validation schemas
+│   ├── database/                # Database configuration
+│   │   ├── connection.service.ts
+│   │   ├── database.module.ts
+│   │   └── database.provider.ts
+│   ├── error/                   # Error handling
+│   │   ├── ControllerError.ts
+│   │   └── ServiceError.ts
+│   ├── middlewares/             # Custom middlewares
+│   │   ├── AuthMiddleware.ts    # JWT authentication
+│   │   ├── RequestValidator.ts  # Zod validation
+│   │   └── RequestLogger.ts     # Request logging
+│   ├── models/                  # Mongoose models
+│   │   └── User.model.ts
+│   ├── types/                   # Shared TypeScript types
+│   ├── app.module.ts            # Root module
+│   ├── main.ts                  # Application entry point
+│   └── generate-openapi.ts      # OpenAPI spec generator
+├── test/                        # E2E tests
+├── Dockerfile                   # Production Docker image
+└── Development.Dockerfile       # Development Docker image
 ```
 
-## Compile and run the project
+## 🛠️ Tech Stack <a name="stack"></a>
+
+| Technology | Purpose           |
+| ---------- | ----------------- |
+| NestJS     | Backend framework |
+| TypeScript | Type safety       |
+| MongoDB    | Database          |
+| Mongoose   | ODM               |
+| JWT        | Authentication    |
+| Bcrypt     | Password hashing  |
+| Zod        | Validation        |
+| Swagger    | API documentation |
+| Jest       | Testing           |
+
+## 📋 Prerequisites <a name="prerequsites"></a>
+
+- Node.js 20+
+- pnpm 9+
+- MongoDB 6+
+
+## 🚀 Quick Start <a name="quick-start"></a>
+
+### 1. Install Dependencies
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm install
 ```
 
-## Run tests
+### 2. Configure Environment
+
+Create a `.env` file in the backend directory:
+
+```env
+# Server
+PORT=5000
+FRONTEND_URL=http://localhost:5173
+
+# Database
+DB_CONNECTION_STRING=mongodb://admin:admin@localhost:27017/myapp?authSource=admin
+
+# Security
+PASSWORD_SALT=your-secure-password-salt
+JWT_SECRET=your-secure-jwt-secret
+JWT_EXPIRES_IN=1h
+```
+
+### 3. Start Development Server
 
 ```bash
-# unit tests
-$ pnpm run test
+# Watch mode with hot reload
+pnpm start:dev
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+# Or standard start
+pnpm start
 ```
 
-## Deployment
+The server will be available at `http://localhost:5000`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 📜 Available Scripts <a name="scripts"></a>
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+| Script                  | Description               |
+| ----------------------- | ------------------------- |
+| `pnpm start`            | Start the server          |
+| `pnpm start:dev`        | Start with watch mode     |
+| `pnpm start:debug`      | Start with debugger       |
+| `pnpm start:prod`       | Start production build    |
+| `pnpm build`            | Build for production      |
+| `pnpm test`             | Run unit tests            |
+| `pnpm test:watch`       | Run tests in watch mode   |
+| `pnpm test:cov`         | Run tests with coverage   |
+| `pnpm test:e2e`         | Run E2E tests             |
+| `pnpm lint`             | Lint and fix code         |
+| `pnpm format`           | Format code with Prettier |
+| `pnpm generate:openapi` | Generate OpenAPI spec     |
+
+## 🔌 API Endpoints <a name="endpoints"></a>
+
+### Public Endpoints
+
+| Method | Endpoint         | Description       |
+| ------ | ---------------- | ----------------- |
+| GET    | `/`              | Health check      |
+| POST   | `/auth/login`    | User login        |
+| POST   | `/auth/register` | User registration |
+
+### Protected Endpoints (Require JWT)
+
+| Method | Endpoint      | Description              | Role  |
+| ------ | ------------- | ------------------------ | ----- |
+| GET    | `/auth/me`    | Get current user profile | Any   |
+| GET    | `/auth/users` | Get all users            | Admin |
+
+## 📖 API Documentation <a name="api-docs"></a>
+
+When running in development, Swagger UI is available at:
+
+```
+http://localhost:5000/api-docs
+```
+
+### Generate OpenAPI Spec
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+pnpm generate:openapi
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+This generates `openapi.json` in the backend root directory.
 
-## Resources
+## 🔒 Authentication <a name="auth"></a>
 
-Check out a few resources that may come in handy when working with NestJS:
+The API uses JWT (JSON Web Token) for authentication.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Login Flow
 
-## Support
+1. POST `/auth/login` with email and password
+2. Receive JWT token in response
+3. Include token in subsequent requests:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+Authorization: Bearer <your-jwt-token>
+```
 
-## Stay in touch
+### Password Requirements
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- 6-15 characters
+- At least one uppercase letter (A-Z)
+- At least one lowercase letter (a-z)
+- At least one number (0-9)
+- At least one special character (!@#$%^&\*)
 
-## License
+## 🧪 Testing <a name="testing"></a>
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Run Unit Tests
+
+```bash
+pnpm test
+```
+
+### Run E2E Tests
+
+```bash
+# Ensure MongoDB is running
+pnpm test:e2e
+```
+
+### Test Coverage
+
+```bash
+pnpm test:cov
+```
+
+## 🐳 Docker <a name="docker"></a>
+
+### Development
+
+```bash
+# From project root
+docker compose -f docker-compose.dev.yml up backend-dev
+```
+
+### Production
+
+```bash
+# Build image
+docker build -t backend:latest .
+
+# Run container
+docker run -p 5000:5000 --env-file .env backend:latest
+```
+
+## 🏗️ Architecture <a name="architecture"></a>
+
+### Request Flow
+
+```
+Request → Middleware → Controller → Service → Repository → Database
+                ↓
+            Validation
+            Auth Check
+            Logging
+```
+
+### Error Handling
+
+```typescript
+// Service errors
+throw new ServiceError('User not found', 'AuthService.getUserById');
+
+// Controller automatically wraps errors
+throw ControllerError.fromError(error);
+```
+
+### Middleware Stack
+
+1. **RequestLogger** - Logs incoming requests
+2. **RequestValidator** - Validates request body with Zod
+3. **AuthMiddleware** - Validates JWT tokens
+   - `optionalAuth()` - Auth optional
+   - `requiredAuth()` - Auth required
+   - `requiredSuperAuth()` - Admin required
+
+## 🔧 Configuration <a name="configuration"></a>
+
+### Environment Variables
+
+| Variable               | Description               | Default |
+| ---------------------- | ------------------------- | ------- |
+| `PORT`                 | Server port               | 5000    |
+| `FRONTEND_URL`         | Frontend URL for CORS     | -       |
+| `DB_CONNECTION_STRING` | MongoDB connection string | -       |
+| `PASSWORD_SALT`        | Salt for password hashing | -       |
+| `JWT_SECRET`           | Secret for JWT signing    | -       |
+| `JWT_EXPIRES_IN`       | JWT expiration time       | 1h      |
