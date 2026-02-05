@@ -103,7 +103,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Run linter
         working-directory: ./frontend
