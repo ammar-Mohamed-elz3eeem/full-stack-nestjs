@@ -21,8 +21,8 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - FRONTEND_URL=http://eg-frontend-dev:5173
-      - DOCS_URL=http://eg-docs-dev:3000
+      - FRONTEND_URL=http://localhost:5173
+      - DOCS_URL=http://localhost:3000
       - PORT=5000
       - DB_CONNECTION_STRING=mongodb://admin:admin@eg-db-dev:27017/myapp?authSource=admin
       - PASSWORD_SALT=acfe4d0752b66cedfb5ab6d23e47621f
