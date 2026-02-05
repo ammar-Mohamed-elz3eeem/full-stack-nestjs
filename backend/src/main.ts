@@ -16,8 +16,6 @@ async function bootstrap() {
     credentials: true,
   };
 
-  console.log('CORS configuration:', cors);
-
   const app = await NestFactory.create(AppModule, {
     cors,
   });
