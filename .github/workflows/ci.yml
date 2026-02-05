@@ -1,14 +1,7 @@
 name: CI - Test & Lint
-
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
-
+on: push
 env:
   NODE_VERSION: "20"
-
 jobs:
   lint-backend:
     name: Lint Backend
