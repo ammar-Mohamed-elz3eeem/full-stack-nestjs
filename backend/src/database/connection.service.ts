@@ -12,23 +12,13 @@ export class ConnectionService {
   constructor() {}
 
   public async connect(): Promise<void> {
-    console.log(
-      '📦 Starting MongoDB connection process...',
-      this.isConnected,
-      this.connectionString,
-    );
     if (this.isConnected) {
       return;
     }
 
-    console.log(
-      '📦 Connecting to MongoDB with connection string:',
-      this.connectionString,
-    );
-
     await mongoose.connect(this.connectionString);
+    this.connection = mongoose.connection;
     this.isConnected = true;
-    console.log('📦 Connected to MongoDB with Mongoose');
   }
 
   public async disconnect(): Promise<void> {

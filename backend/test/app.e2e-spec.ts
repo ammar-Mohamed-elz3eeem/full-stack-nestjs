@@ -29,12 +29,13 @@ describe('AppController (e2e)', () => {
   let connectionService: ConnectionService;
   let moduleFixture: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    connectionService = moduleFixture.get<ConnectionService>(ConnectionService);
     await app.init();
   });
 
@@ -197,8 +198,8 @@ describe('AppController (e2e)', () => {
         .expect(200);
     });
 
-    it('invalid credentials', () => {
-      return request(app.getHttpServer())
+    it('invalid credentials', async () => {
+      return await request(app.getHttpServer())
         .post('/auth/login')
         .send({
           email: 'testuser@example.com',
@@ -230,8 +231,8 @@ describe('AppController (e2e)', () => {
         registerResponse.body.user?.id || registerResponse.body.user?._id;
     });
 
-    it('should return 401 when no authorization header is provided', () => {
-      return request(app.getHttpServer())
+    it('should return 401 when no authorization header is provided', async () => {
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .expect(401)
         .then((response) => {
@@ -239,8 +240,8 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return 401 when authorization header has no token', () => {
-      return request(app.getHttpServer())
+    it('should return 401 when authorization header has no token', async () => {
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set('Authorization', 'Bearer ')
         .expect(401)
@@ -249,8 +250,8 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return 401 when token is invalid', () => {
-      return request(app.getHttpServer())
+    it('should return 401 when token is invalid', async () => {
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set('Authorization', 'Bearer invalidtoken123')
         .expect(401)
@@ -259,8 +260,8 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return 401 when token is malformed', () => {
-      return request(app.getHttpServer())
+    it('should return 401 when token is malformed', async () => {
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set(
           'Authorization',
@@ -269,7 +270,7 @@ describe('AppController (e2e)', () => {
         .expect(401);
     });
 
-    it('should return 401 when token is expired', () => {
+    it('should return 401 when token is expired', async () => {
       const expiredToken = JWTSign(
         {
           id: createdUserId,
@@ -280,7 +281,7 @@ describe('AppController (e2e)', () => {
         { expiresIn: '-1h' }, // Already expired
       );
 
-      return request(app.getHttpServer())
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set('Authorization', `Bearer ${expiredToken}`)
         .expect(401)
@@ -289,7 +290,7 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return 401 when token has wrong signature', () => {
+    it('should return 401 when token has wrong signature', async () => {
       const wrongSecretToken = JWTSign(
         {
           id: createdUserId,
@@ -300,7 +301,7 @@ describe('AppController (e2e)', () => {
         { expiresIn: '1h' },
       );
 
-      return request(app.getHttpServer())
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set('Authorization', `Bearer ${wrongSecretToken}`)
         .expect(401)
@@ -316,7 +317,7 @@ describe('AppController (e2e)', () => {
         fullName: 'Me Test User',
       });
 
-      return request(app.getHttpServer())
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set('Authorization', `Bearer ${validToken}`)
         .expect(200)
@@ -334,7 +335,7 @@ describe('AppController (e2e)', () => {
         fullName: 'Non Existent User',
       });
 
-      return request(app.getHttpServer())
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set('Authorization', `Bearer ${nonExistentToken}`)
         .expect((res) => {
@@ -352,7 +353,7 @@ describe('AppController (e2e)', () => {
         role: 'user',
       });
 
-      return request(app.getHttpServer())
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set('Authorization', `Bearer ${userToken}`)
         .expect(200)
@@ -369,7 +370,7 @@ describe('AppController (e2e)', () => {
         role: 'admin',
       });
 
-      return request(app.getHttpServer())
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200)
@@ -378,14 +379,14 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should handle Authorization header without Bearer prefix', () => {
+    it('should handle Authorization header without Bearer prefix', async () => {
       const validToken = generateTestToken({
         id: createdUserId,
         email: 'metest@example.com',
         fullName: 'Me Test User',
       });
 
-      return request(app.getHttpServer())
+      return await request(app.getHttpServer())
         .get('/auth/me')
         .set('Authorization', validToken) // No 'Bearer ' prefix
         .expect(401)
@@ -425,8 +426,8 @@ describe('AppController (e2e)', () => {
         adminUserResponse.body.user?.id || adminUserResponse.body.user?._id;
     });
 
-    it('should return 401 when no authorization header is provided', () => {
-      return request(app.getHttpServer())
+    it('should return 401 when no authorization header is provided', async () => {
+      await request(app.getHttpServer())
         .get('/auth/users')
         .expect(401)
         .then((response) => {
@@ -434,8 +435,8 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return 401 when authorization header has no token', () => {
-      return request(app.getHttpServer())
+    it('should return 401 when authorization header has no token', async () => {
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', 'Bearer ')
         .expect(401)
@@ -444,14 +445,14 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return 401 when token is invalid', () => {
-      return request(app.getHttpServer())
+    it('should return 401 when token is invalid', async () => {
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', 'Bearer invalidtoken123')
         .expect(401);
     });
 
-    it('should return 401 when token is expired', () => {
+    it('should return 401 when token is expired', async () => {
       const expiredToken = JWTSign(
         {
           id: adminTestUserId,
@@ -463,13 +464,13 @@ describe('AppController (e2e)', () => {
         { expiresIn: '-1h' },
       );
 
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', `Bearer ${expiredToken}`)
         .expect(401);
     });
 
-    it('should return 403 when user role is not admin', () => {
+    it('should return 403 when user role is not admin', async () => {
       const regularUserToken = generateTestToken({
         id: regularUserId,
         email: 'regular@example.com',
@@ -477,7 +478,7 @@ describe('AppController (e2e)', () => {
         role: 'user',
       });
 
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', `Bearer ${regularUserToken}`)
         .expect(403)
@@ -486,14 +487,14 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return 403 when role is not provided in token (defaults to non-admin)', () => {
+    it('should return 403 when role is not provided in token (defaults to non-admin)', async () => {
       const noRoleToken = generateTestToken({
         id: regularUserId,
         email: 'regular@example.com',
         fullName: 'Regular User',
       });
 
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', `Bearer ${noRoleToken}`)
         .expect(403)
@@ -502,7 +503,7 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return all users when admin token is provided', () => {
+    it('should return all users when admin token is provided', async () => {
       const adminToken = generateTestToken({
         id: adminTestUserId,
         email: 'admin@example.com',
@@ -510,7 +511,7 @@ describe('AppController (e2e)', () => {
         role: 'admin',
       });
 
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200)
@@ -520,7 +521,7 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return array of users with correct structure', () => {
+    it('should return array of users with correct structure', async () => {
       const adminToken = generateTestToken({
         id: adminTestUserId,
         email: 'admin@example.com',
@@ -528,7 +529,7 @@ describe('AppController (e2e)', () => {
         role: 'admin',
       });
 
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200)
@@ -544,7 +545,7 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should include recently registered users in the list', () => {
+    it('should include recently registered users in the list', async () => {
       const adminToken = generateTestToken({
         id: adminTestUserId,
         email: 'admin@example.com',
@@ -552,7 +553,7 @@ describe('AppController (e2e)', () => {
         role: 'admin',
       });
 
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200)
@@ -565,7 +566,7 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should return 401 when token has wrong signature', () => {
+    it('should return 401 when token has wrong signature', async () => {
       const wrongSecretToken = JWTSign(
         {
           id: adminTestUserId,
@@ -577,21 +578,21 @@ describe('AppController (e2e)', () => {
         { expiresIn: '1h' },
       );
 
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', `Bearer ${wrongSecretToken}`)
         .expect(401);
     });
 
-    it('should handle malformed Authorization header', () => {
-      return request(app.getHttpServer())
+    it('should handle malformed Authorization header', async () => {
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', 'InvalidFormat token')
         .expect(401);
     });
 
-    it('should handle empty Bearer token', () => {
-      return request(app.getHttpServer())
+    it('should handle empty Bearer token', async () => {
+      await request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', 'Bearer')
         .expect(401);
@@ -600,12 +601,14 @@ describe('AppController (e2e)', () => {
 
   afterAll(async () => {
     // Get the connection service and clear all collections
-    connectionService = moduleFixture.get<ConnectionService>(ConnectionService);
     const collections = await connectionService.connection.db?.collections();
 
     for (const collection of collections || []) {
       await collection.deleteMany({});
     }
+
+    // Close database connection and app
+    await connectionService.disconnect();
     await app.close();
   });
 });
